@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Platform, Container } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { format, set } from 'date-fns';
 import commonStyles from '../assets/styles'
 import todayImage from '../assets/imgs/today.jpg'
 import Tasks from '../components/Tasks'
+import ActionButton from 'react-native-action-button';
+import AddTask from '../components/AddTask';
 const App = () => {
   const formattedDate = format(new Date(), "dd 'do' MM 'de' yyyy", { locale: '' });
   const [tasks, setTasks] = useState([
@@ -13,6 +15,7 @@ const App = () => {
   ]);
   const [visibleTasks, setVisibleTasks] = useState([]);
   const [showDoneTasks, setShowDoneTasks] = useState(true);
+  const [showAddTasks, setShowAddTasks] = useState(false);
 
   const onTaskHandler = (id) => {
     const task = tasks.map(task => {
@@ -35,6 +38,15 @@ const App = () => {
   useEffect(() => {
     filterTask();
   }, [showDoneTasks, tasks]);
+
+  const addNewTask = (newTask) => {
+    setTasks(tasks => [...tasks, { id: `${Math.random()}`, desc: newTask.desc, estimateAt: newTask.estimateAt, doneAt: null }])
+  }
+  const cancelNewTask = () => {
+    setShowAddTasks(false);
+  }
+
+
   const renderItem = itemData => {
     return (
       <Tasks
@@ -46,9 +58,10 @@ const App = () => {
       />
     )
   }
-
   return (
+
     <View style={commonStyles.container}>
+      <AddTask onHandlerCancel={cancelNewTask} onHandlerSave={addNewTask} />
       <ImageBackground source={todayImage} style={styles.background}>
         <View style={styles.iconBar}>
           <TouchableOpacity onPress={onHandlerFilter}>
@@ -70,7 +83,9 @@ const App = () => {
           renderItem={renderItem}
         />
       </View>
+      <ActionButton buttonColor={'#b71c1c'} onPress={() => setShowAddTasks(true)} />
     </View>
+
   );
 };
 const styles = StyleSheet.create({
