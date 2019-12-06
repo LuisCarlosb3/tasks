@@ -1,13 +1,10 @@
 import React from 'react';
-import { View, Text, ImageBackground, StyleSheet } from 'react-native';
+import { View, Text, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import commonStyles from '../assets/styles'
 import todayImage from '../assets/imgs/today.jpg'
-
-export default function Tasks({ doneAt, desc, estimateAt }) {
-    console.log(estimateAt)
-    console.log(desc)
-    console.log(doneAt)
+import { format } from 'date-fns';
+export default function Tasks({ doneAt, desc, estimateAt, onTaskHandler, id }) {
     let check = null;
     check = doneAt !== null ?
         <View style={styles.done}>
@@ -19,13 +16,17 @@ export default function Tasks({ doneAt, desc, estimateAt }) {
     const descStyle = doneAt !== null ? { textDecorationLine: 'line-through' } : {}
     return (
         <View style={styles.container}>
-            <View style={styles.checkContainer}>{check}</View>
+            <View style={styles.checkContainer}>
+                <TouchableOpacity onPress={() => onTaskHandler(id)}>
+                    {check}
+                </TouchableOpacity>
+            </View>
             <View>
                 <Text style={[styles.description, descStyle]}>
                     {desc}
                 </Text>
                 <Text style={styles.date}>
-                    {new Date(estimateAt).toLocaleDateString('pt-br')}
+                    {format(estimateAt, "dd 'do' MM 'de' yyyy", { locale: '' })}
                 </Text>
             </View>
         </View>
