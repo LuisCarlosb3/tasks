@@ -59,32 +59,33 @@ const App = () => {
     )
   }
   return (
-
-    <View style={commonStyles.container}>
+    <>
       <AddTask onHandlerCancel={cancelNewTask} onHandlerSave={addNewTask} />
-      <ImageBackground source={todayImage} style={styles.background}>
-        <View style={styles.iconBar}>
-          <TouchableOpacity onPress={onHandlerFilter}>
-            <Icon name={showDoneTasks ? 'eye' : 'eye-slash'} size={20} color={'#F0F0F0'} />
-          </TouchableOpacity>
+      <View style={commonStyles.container}>
+        <ImageBackground source={todayImage} style={styles.background}>
+          <View style={styles.iconBar}>
+            <TouchableOpacity onPress={onHandlerFilter}>
+              <Icon name={showDoneTasks ? 'eye' : 'eye-slash'} size={20} color={'#F0F0F0'} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.titleBar}>
+            <Text style={styles.title}>Hoje</Text>
+            <Text style={styles.subtitle}>
+              {formattedDate}
+            </Text>
+          </View>
+        </ImageBackground>
+        <View style={styles.taskContainer}>
+          <FlatList
+            extraData={tasks}
+            data={visibleTasks}
+            keyExtractor={item => item.id}
+            renderItem={renderItem}
+          />
         </View>
-        <View style={styles.titleBar}>
-          <Text style={styles.title}>Hoje</Text>
-          <Text style={styles.subtitle}>
-            {formattedDate}
-          </Text>
-        </View>
-      </ImageBackground>
-      <View style={styles.taskContainer}>
-        <FlatList
-          extraData={tasks}
-          data={visibleTasks}
-          keyExtractor={item => item.id}
-          renderItem={renderItem}
-        />
+        <ActionButton buttonColor={'#b71c1c'} onPress={() => setShowAddTasks(true)} />
       </View>
-      <ActionButton buttonColor={'#b71c1c'} onPress={() => setShowAddTasks(true)} />
-    </View>
+    </>
 
   );
 };

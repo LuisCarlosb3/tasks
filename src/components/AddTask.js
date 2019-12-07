@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Alert, Platform, Container, Animated } from 'react-native';
 
-import DateTimePicker from '@react-native-community/datetimepicker';
+
 const AddTask = (props) => {
     // { onHandlerSave, onHandlerCancel }
     console.log(props);
     const [desc, setDesc] = useState('');
-    const [estimatedAt, setEstimatedAt] = new Date();
+    const [estimatedAt, setEstimatedAt] = useState(new Date());
     const [showPick, setShowPick] = useState(false);
 
     const save = () => {
@@ -19,13 +19,9 @@ const AddTask = (props) => {
         setDesc('');
         setEstimatedAt(new Date());
     }
-    const setDate = (event, date) => {
-        date = date || estimatedAt;
-        setEstimatedAt(date);
-        setShowPick(Platform.OS === 'ios' ? true : false);
-    }
+
     return (
-        <Animated.Container>
+        <Animated.View>
             <TouchableWithoutFeedback onPress={() => props.onHandlerCancel()}>
                 <View style={styles.offset}></View>
             </TouchableWithoutFeedback>
@@ -33,16 +29,13 @@ const AddTask = (props) => {
                 <Text style={styles.header}>
                     Nova Tarefa:
                 </Text>
-                <TextInput placeholder="Descrição..." style={styles.input} onChangeText={text => setDesc(text)} value={text} />
+                <TextInput placeholder="Descrição..." style={styles.input} onChangeText={text => setDesc(text)} value={desc} />
                 <TouchableWithoutFeedback onPress={() => setShowPick(true)}>
                     <Text style={styles.header}>
                         Data:
                     </Text>
                 </TouchableWithoutFeedback>
-                {showPick && <DateTimePicker
-                    value={estimatedAt}
-                    onChange={setDate}
-                />}
+
                 <View style={styles.formButton}>
                     <TouchableOpacity onPress={() => props.onHandlerCancel()}>
                         <Text style={styles.buttonCancel}>Cancelar</Text>
@@ -55,7 +48,7 @@ const AddTask = (props) => {
             <TouchableWithoutFeedback onPress={() => props.onHandlerCancel()}>
                 <View style={styles.offset}></View>
             </TouchableWithoutFeedback>
-        </Animated.Container>
+        </Animated.View>
     );
 }
 
