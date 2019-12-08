@@ -1,53 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Platform, Container } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import commonStyles from '../assets/styles'
 import todayImage from '../assets/imgs/today.jpg'
 import Tasks from '../components/Tasks'
 import ActionButton from 'react-native-action-button';
 import AddTask from '../components/AddTask';
+
+import { initTasks, getTasks, addTask, removeTask } from '../store/TaskStore';
+async function initData() {
+  await initTasks();
+}
 const App = () => {
+  initData();
   const formattedDate = format(new Date(), "dd 'do' MM 'de' yyyy", { locale: '' });
-  const [tasks, setTasks] = useState([
-    { id: `${Math.random()}`, desc: 'Comprar curso', estimateAt: new Date(), doneAt: new Date() },
-    { id: `${Math.random()}`, desc: 'Concluir curso', estimateAt: new Date(), doneAt: null },
-  ]);
-  const [visibleTasks, setVisibleTasks] = useState([]);
+  const [tasks, setTasks] = useState();
+
   const [showDoneTasks, setShowDoneTasks] = useState(true);
   const [showAddTasks, setShowAddTasks] = useState(false);
 
+  useEffect(() => {
+    startData();
+  }, []);
+  const startData = async () => {
+    const data = await getTasks();
+    setTasks(data);
+  }
   const onTaskHandler = (id) => {
     const task = tasks.map(task => {
       return (task.id === id) ? { ...task, doneAt: task.doneAt !== null ? null : new Date() } : task;
     });
     setTasks(task);
   }
-  const filterTask = () => {
-    if (showDoneTasks) {
-      setVisibleTasks(tasks);
-    } else {
-      const pedding = tasks.filter(task => task.doneAt === null);
-      setVisibleTasks(pedding);
-    }
+  const onDeleteHandler = (id) => {
+    removeTask(id).then(() => {
+      startData();
+    })
   }
   const onHandlerFilter = () => {
     setShowDoneTasks(!showDoneTasks);
   }
 
-  useEffect(() => {
-    filterTask();
-  }, [showDoneTasks, tasks]);
 
-  const addNewTask = (newTask) => {
-    setTasks(tasks => [...tasks, { id: `${Math.random()}`, desc: newTask.desc, estimateAt: newTask.estimateAt, doneAt: null }])
-  }
-  const cancelNewTask = () => {
+  const addNewTask = async (newTask) => {
+    const newTaskObj = { id: `${Math.random()}`, desc: newTask.desc, estimateAt: format(newTask.estimateAt, "dd'/'MM'/'yyyy"), doneAt: null };
+    await addTask(newTaskObj);
+    await startData();
     setShowAddTasks(false);
+    // setTasks(newTasks => [...newTasks, { id: `${Math.random()}`, desc: newTask.desc, estimateAt: newTask.estimateAt, doneAt: null }]);
   }
 
 
   const renderItem = itemData => {
+    if (!showDoneTasks && itemData.item.doneAt !== null)
+      return
+
     return (
       <Tasks
         id={itemData.item.id}
@@ -55,13 +63,14 @@ const App = () => {
         desc={itemData.item.desc}
         estimateAt={itemData.item.estimateAt}
         onTaskHandler={onTaskHandler}
+        onDeleteHandler={onDeleteHandler}
       />
     )
   }
   return (
     <>
-      <AddTask onHandlerCancel={cancelNewTask} onHandlerSave={addNewTask} />
       <View style={commonStyles.container}>
+        <AddTask onHandlerSave={addNewTask} onHandlerClose={() => setShowAddTasks(false)} isOpen={showAddTasks} />
         <ImageBackground source={todayImage} style={styles.background}>
           <View style={styles.iconBar}>
             <TouchableOpacity onPress={onHandlerFilter}>
@@ -78,7 +87,7 @@ const App = () => {
         <View style={styles.taskContainer}>
           <FlatList
             extraData={tasks}
-            data={visibleTasks}
+            data={tasks}
             keyExtractor={item => item.id}
             renderItem={renderItem}
           />
@@ -124,7 +133,6 @@ const styles = StyleSheet.create({
   taskContainer: {
     flex: 7,
     width: '100%',
-    paddingHorizontal: 20
   }
 });
 export default App;

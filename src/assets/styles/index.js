@@ -6,7 +6,8 @@ const commonStyles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#F5FCFF',
-        width: '100%'
+        width: '100%',
+        zIndex: 1
 
     },
     welcome: {
